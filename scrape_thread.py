@@ -29,7 +29,8 @@ for (i, x) in enumerate(comments):
     document = {
         "body": body,
         "author": author,
-        "comment_id": x.id
+        "comment_id": x.id,
+        "upvotes": x.ups
     }
     thread_collection.insert_one(document)
     

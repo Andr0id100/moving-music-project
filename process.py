@@ -4,7 +4,7 @@ import re
 import pandas as pd
 
 THREAD_ID = "1cot2h"
-EXPORT_FILE = THREAD_ID + "_v1" + ".csv"
+EXPORT_FILE = THREAD_ID + "_v2" + ".csv"
 # Source: https://stackoverflow.com/questions/19377262/regex-for-youtube-url
 # regex_pattern = "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 
@@ -38,7 +38,8 @@ for comment in comments:
             filtered_data.append({
                 "url": url,
                 "author": comment["author"],
-                "comment_id": comment["comment_id"]
+                "comment_id": comment["comment_id"],
+                "upvotes": comment["upvotes"]
             })
 print()
 
