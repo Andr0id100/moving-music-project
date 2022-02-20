@@ -1,10 +1,20 @@
-from concurrent.futures import thread
 from pymongo import MongoClient
 import re
 import pandas as pd
+from argparse import ArgumentParser
 
-THREAD_ID = "1cot2h"
-EXPORT_FILE = THREAD_ID + "_v2" + ".csv"
+parser = ArgumentParser()
+parser.add_argument("--post_id", type=str, required=True)
+args = parser.parse_args()
+
+# THREAD_ID = "1cot2h"
+# EXPORT_FILE = THREAD_ID + "_v2" + ".csv"
+# THREAD_ID = "rmfow"
+# EXPORT_FILE = THREAD_ID + "_v1" + ".csv"
+
+POST_ID = args.post_id
+EXPORT_FILE = f"{POST_ID}.csv"
+
 # Source: https://stackoverflow.com/questions/19377262/regex-for-youtube-url
 # regex_pattern = "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 
@@ -13,7 +23,7 @@ url_pattern = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:
 
 client = MongoClient()
 db = client["mmt_project"]
-thread_collection = db[THREAD_ID]
+thread_collection = db[POST_ID]
 
 comments = thread_collection.find({}, {"_id": 0})
 
@@ -43,6 +53,6 @@ for comment in comments:
             })
 print()
 
-df = pd.DataFrame(filtered_data)
+df = pd.DataFrame(filtered_data).assign(post_id=[POST_ID for _ in filtered_data])
 df.to_csv(EXPORT_FILE, index=False)
 print("Exported to", EXPORT_FILE)
