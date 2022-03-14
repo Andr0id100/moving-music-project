@@ -1,4 +1,3 @@
-from concurrent.futures import thread
 from pymongo import MongoClient
 import re
 import pandas as pd
@@ -11,8 +10,6 @@ credentials = SpotifyClientCredentials(
         client_id=os.environ["SPOTIFY_ID"],
         client_secret=os.environ["SPOTIFY_SECRET"])
 
-THREAD_ID = "1cot2h"
-EXPORT_FILE = THREAD_ID + "_v1" + ".csv"
 # Source: https://stackoverflow.com/questions/19377262/regex-for-youtube-url
 # regex_pattern = "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 
