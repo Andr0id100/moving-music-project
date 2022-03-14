@@ -8,7 +8,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from get_links import LinkConverter
 
 credentials = SpotifyClientCredentials(
-        client_id=os.environ["SPOTIFY_CREDS"],
+        client_id=os.environ["SPOTIFY_ID"],
         client_secret=os.environ["SPOTIFY_SECRET"])
 
 THREAD_ID = "1cot2h"

@@ -5,7 +5,7 @@ import os
 import praw
 from pymongo import MongoClient
 
-THREAD_LINK = "https://www.reddit.com/r/Music/comments/1cot2h/what_is_the_most_moving_song_you_have_ever_heard/"
+THREAD_LINK = "https://www.reddit.com/r/AskReddit/comments/f6qlck/which_song_has_been_so_powerful_and_moving_that/"
 
 reddit = praw.Reddit(client_id=os.environ["REDDIT_CLIENT_ID"],
                      client_secret=os.environ["REDDIT_SECRET"], user_agent=os.environ["REDDIT_USER_AGENT"])
