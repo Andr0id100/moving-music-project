@@ -2,17 +2,26 @@ from concurrent.futures import thread
 from pymongo import MongoClient
 import re
 import pandas as pd
+import os 
+import pygsheets 
+from spotipy.oauth2 import SpotifyClientCredentials
+from get_links import LinkConverter
+
+credentials = SpotifyClientCredentials(
+        client_id=os.environ["SPOTIFY_CREDS"],
+        client_secret=os.environ["SPOTIFY_SECRET"])
 
 THREAD_ID = "1cot2h"
 EXPORT_FILE = THREAD_ID + "_v1" + ".csv"
 # Source: https://stackoverflow.com/questions/19377262/regex-for-youtube-url
 # regex_pattern = "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
 
+lc = LinkConverter(credentials)
 # Source: https://www.geeksforgeeks.org/python-check-url-string/
 url_pattern = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
 
-client = MongoClient()
-db = client["mmt_project"]
+client = MongoClient(os.environ["MONGO_URL"])
+db = client.get_database("mmt-project")
 thread_collection = db[THREAD_ID]
 
 comments = thread_collection.find({}, {"_id": 0})
@@ -35,13 +44,21 @@ for comment in comments:
                 print(f"Dropping URL {url}")
                 continue
             
+            spot_id = lc.get_spotify_id(url)
+
             filtered_data.append({
-                "url": url,
+                "yt_url": url,
+                "spot_id": spot_id,
                 "author": comment["author"],
-                "comment_id": comment["comment_id"]
+                "comment_id": comment["comment_id"],
+                "score": comment["score"]
             })
 print()
 
 df = pd.DataFrame(filtered_data)
+gs_client = pygsheets.authorize(service_file=os.environ["GS_CRED_PATH"])
+sh = gs_client.open('test')
+wks = sh.sheet1 
+wks.set_dataframe(df, (1,1))
 df.to_csv(EXPORT_FILE, index=False)
 print("Exported to", EXPORT_FILE)

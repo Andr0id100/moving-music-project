@@ -9,8 +9,10 @@ THREAD_LINK = "https://www.reddit.com/r/Music/comments/1cot2h/what_is_the_most_m
 
 reddit = praw.Reddit(client_id=os.environ["REDDIT_CLIENT_ID"],
                      client_secret=os.environ["REDDIT_SECRET"], user_agent=os.environ["REDDIT_USER_AGENT"])
-client = MongoClient()
-db = client["mmt_project"]
+                     
+client = MongoClient(os.environ["MONGO_URL"])
+db = client.get_database("mmt-project")
+#collection = db.mmt_data 
 
 submission = reddit.submission(url=THREAD_LINK)
 # Delete existing collection for the thread
@@ -22,6 +24,7 @@ comments = submission.comments.list()
 for (i, x) in enumerate(comments):
     print(f"{i}/{len(comments)}")
     body = x.body
+    score = x.score
     if x.author is None:
         author = ""
     else:
@@ -29,7 +32,7 @@ for (i, x) in enumerate(comments):
     document = {
         "body": body,
         "author": author,
+        "score":score, 
         "comment_id": x.id
     }
     thread_collection.insert_one(document)
-    
