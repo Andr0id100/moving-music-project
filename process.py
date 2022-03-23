@@ -8,8 +8,8 @@ from get_links import SpotifyFinder
 import os 
 
 credentials = SpotifyClientCredentials(
-        client_id=os.environ["SPOTIFY_ID"],
-        client_secret=os.environ["SPOTIFY_SECRET"])
+        client_id=os.environ["SPOTIFY_CLIENT_ID"],
+        client_secret=os.environ["SPOTIFY_CLIENT_SECRET"])
 
 sf = SpotifyFinder(credentials)
 
