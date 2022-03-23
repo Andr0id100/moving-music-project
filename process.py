@@ -23,7 +23,7 @@ args = parser.parse_args()
 # EXPORT_FILE = THREAD_ID + "_v1" + ".csv"
 
 POST_ID = args.post_id
-EXPORT_FILE = f"{POST_ID}.csv"
+EXPORT_FILE = POST_ID
 
 # Source: https://stackoverflow.com/questions/19377262/regex-for-youtube-url
 # regex_pattern = "^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"
@@ -54,24 +54,32 @@ for i, comment in enumerate(comments):
 
 total = 0 
 
-def write_to_sheet(data):
+def write_to_sheet(data, start):
     df = pd.DataFrame(data).assign(post_id=[POST_ID for _ in data])
-    df.to_csv(EXPORT_FILE, index=False)
-    print("Exported to", EXPORT_FILE)
-    wks.set_dataframe(df, (1,1))
+    df.to_csv(f'{EXPORT_FILE}_{start}.csv', index=False)
+    print("Exported to ", EXPORT_FILE, " ", len(data))
+    if(start):
+        if(start == 1):
+            wks.set_dataframe(df, (start,1))
+        else:
+            wks.set_dataframe(df, (start+1,1), copy_head = False)
+    # else:
+    # values = df.values.tolist()
+    # wks.append_table(values, start = 'A1', overwrite = False)
 
+last = 1
 comments = thread_collection.find({}, {"_id": 0})
 for i, comment in enumerate(comments):
     print(f'{i}/{count} - {total}', end='\r', flush=True)    
 
-    if((i+1)%5000 == 0):
-        write_to_sheet(filtered_data)
+    if((i+1)%2000 == 0):
+        write_to_sheet(filtered_data[last-1:], last)
+        last = len(filtered_data)
 
     match = False 
     # Just checking Youtube for now
     # yout for youtube.com and youtu.be
     if "yout" in comment["body"]:
-        print('here')
         matches = re.findall(url_pattern, comment["body"])
         # String that had "yout" as part of text and not URL
         if len(matches) == 0:
@@ -126,4 +134,5 @@ for i, comment in enumerate(comments):
                 })
                 total+=1
 
-write_to_sheet(filtered_data)
+write_to_sheet(filtered_data[last-1:], last)
+write_to_sheet(filtered_data, 0)
